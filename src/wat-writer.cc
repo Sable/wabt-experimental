@@ -1610,6 +1610,8 @@ void WatWriter::WriteStartFunction(const Var& start) {
 }
 
 void WatWriter::WriteFuncNativeFunction(const wabt::FuncNative &func) {
+  WriteOpenSpace("native");
+  WriteQuotedString(func.native_name, NextChar::Space);
   WriteOpenSpace("func");
   WriteNameOrIndex(func.var_name, native_func_index_, NextChar::Space);
   if (func.decl.has_func_type) {
