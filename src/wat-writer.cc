@@ -168,6 +168,7 @@ class WatWriter {
   void WriteExport(const Export& export_);
   void WriteFuncType(const FuncType& func_type);
   void WriteStartFunction(const Var& start);
+  void WriteFuncNativeFunction(const FuncNative& func);
 
   class ExprVisitorDelegate;
 
@@ -203,6 +204,7 @@ class WatWriter {
   std::vector<const Import*> inline_import_map_[kExternalKindCount];
 
   Index func_index_ = 0;
+  Index native_func_index_ = 0;
   Index global_index_ = 0;
   Index table_index_ = 0;
   Index memory_index_ = 0;
@@ -527,6 +529,7 @@ class WatWriter::ExprVisitorDelegate : public ExprVisitor::Delegate {
   Result OnBrTableExpr(BrTableExpr*) override;
   Result OnCallExpr(CallExpr*) override;
   Result OnCallIndirectExpr(CallIndirectExpr*) override;
+  Result OnCallNativeExpr(CallNativeExpr*) override;
   Result OnCompareExpr(CompareExpr*) override;
   Result OnConstExpr(ConstExpr*) override;
   Result OnConvertExpr(ConvertExpr*) override;
@@ -630,6 +633,12 @@ Result WatWriter::ExprVisitorDelegate::OnBrTableExpr(BrTableExpr* expr) {
 
 Result WatWriter::ExprVisitorDelegate::OnCallExpr(CallExpr* expr) {
   writer_->WritePutsSpace(Opcode::Call_Opcode.GetName());
+  writer_->WriteVar(expr->var, NextChar::Newline);
+  return Result::Ok;
+}
+
+Result WatWriter::ExprVisitorDelegate::OnCallNativeExpr(CallNativeExpr* expr) {
+  writer_->WritePutsSpace(Opcode::CallIndirect_Opcode.GetName());
   writer_->WriteVar(expr->var, NextChar::Newline);
   return Result::Ok;
 }
@@ -1600,6 +1609,23 @@ void WatWriter::WriteStartFunction(const Var& start) {
   WriteCloseNewline();
 }
 
+void WatWriter::WriteFuncNativeFunction(const wabt::FuncNative &func) {
+  WriteOpenSpace("func");
+  WriteNameOrIndex(func.var_name, native_func_index_, NextChar::Space);
+  if (func.decl.has_func_type) {
+    WriteOpenSpace("type");
+    WriteVar(func.decl.type_var, NextChar::None);
+    WriteCloseSpace();
+  }
+
+  if (!func.decl.has_func_type) {
+    WriteFuncSigSpace(func.decl.sig);
+  }
+  native_func_index_++;
+  WriteCloseSpace();
+  WriteCloseNewline();
+}
+
 Result WatWriter::WriteModule(const Module& module) {
   module_ = &module;
   BuildInlineExportMap();
@@ -1644,6 +1670,9 @@ Result WatWriter::WriteModule(const Module& module) {
         break;
       case ModuleFieldType::Start:
         WriteStartFunction(cast<StartModuleField>(&field)->start);
+        break;
+      case ModuleFieldType::FuncNative:
+        WriteFuncNativeFunction(cast<FuncNativeModuleField>(&field)->func_native);
         break;
     }
   }

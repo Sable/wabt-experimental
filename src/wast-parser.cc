@@ -118,6 +118,7 @@ bool IsPlainInstr(TokenType token_type) {
     case TokenType::ReturnCallIndirect:
     case TokenType::Call:
     case TokenType::CallIndirect:
+    case TokenType::CallNative:
     case TokenType::LocalGet:
     case TokenType::LocalSet:
     case TokenType::LocalTee:
@@ -203,6 +204,7 @@ bool IsModuleField(TokenTypePair pair) {
     case TokenType::Memory:
     case TokenType::Start:
     case TokenType::Table:
+    case TokenType::Native:
       return true;
     default:
       return false;
@@ -873,6 +875,7 @@ Result WastParser::ParseModuleField(Module* module) {
     case TokenType::Memory: return ParseMemoryModuleField(module);
     case TokenType::Start:  return ParseStartModuleField(module);
     case TokenType::Table:  return ParseTableModuleField(module);
+    case TokenType::Native:  return ParseNativeModuleField(module);
     default:
       assert(
           !"ParseModuleField should only be called if IsModuleField() is true");
@@ -1264,6 +1267,24 @@ Result WastParser::ParseTableModuleField(Module* module) {
   return Result::Ok;
 }
 
+Result WastParser::ParseNativeModuleField(Module* module) {
+  WABT_TRACE(ParseTypeModuleField);
+  EXPECT(Lpar);
+  auto field = MakeUnique<FuncNativeModuleField>(GetLocation());
+  EXPECT(Native);
+  CHECK_RESULT(ParseQuotedText(&field->func_native.native_name));
+  EXPECT(Lpar);
+  EXPECT(Func);
+  ParseBindVarOpt(&field->func_native.var_name);
+  BindingHash bindings;
+  CHECK_RESULT(ParseFuncSignature(&field->func_native.decl.sig, &bindings));
+  CHECK_RESULT(ErrorIfLpar({"param", "result"}));
+  EXPECT(Rpar);
+  EXPECT(Rpar);
+  module->AppendField(std::move(field));
+  return Result::Ok;
+}
+
 Result WastParser::ParseExportDesc(Export* export_) {
   WABT_TRACE(ParseExportDesc);
   EXPECT(Lpar);
@@ -1508,6 +1529,12 @@ Result WastParser::ParsePlainInstr(std::unique_ptr<Expr>* out_expr) {
       CHECK_RESULT(ParseUnboundFuncSignature(&expr->decl.sig));
       ParseVarOpt(&expr->table, Var(0));
       *out_expr = std::move(expr);
+      break;
+    }
+
+    case TokenType::CallNative: {
+      Consume();
+      CHECK_RESULT(ParsePlainInstrVar<CallNativeExpr>(loc, out_expr));
       break;
     }
 

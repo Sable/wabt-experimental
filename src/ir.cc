@@ -39,6 +39,7 @@ const char* ExprTypeName[] = {
   "BrTable",
   "Call",
   "CallIndirect",
+  "CallNative",
   "Compare",
   "Const",
   "Convert",
@@ -302,6 +303,22 @@ ElemSegment* Module::GetElemSegment(const Var& var) {
   return elem_segments[index];
 }
 
+const FuncNative* Module::GetFuncNative(const Var& var) const {
+  return const_cast<Module*>(this)->GetFuncNative(var);
+}
+
+FuncNative* Module::GetFuncNative(const Var& var) {
+  Index index = func_native_bindings.FindIndex(var);
+  if (index >= func_native_bindings.size()) {
+    return nullptr;
+  }
+  return func_natives[index];
+}
+
+Index Module::GetFuncNativeIndex(const Var& var) const {
+  return func_native_bindings.FindIndex(var);
+}
+
 const FuncType* Module::GetFuncType(const Var& var) const {
   return const_cast<Module*>(this)->GetFuncType(var);
 }
@@ -485,6 +502,15 @@ void Module::AppendField(std::unique_ptr<TableModuleField> field) {
   fields.push_back(std::move(field));
 }
 
+void Module::AppendField(std::unique_ptr<FuncNativeModuleField> field) {
+  FuncNative& func_native = field->func_native;
+  if (!func_native.var_name.empty()) {
+    func_native_bindings.emplace(func_native.var_name, Binding(field->loc, func_natives.size()));
+  }
+  func_natives.push_back(&func_native);
+  fields.push_back(std::move(field));
+}
+
 void Module::AppendField(std::unique_ptr<ModuleField> field) {
   switch (field->type()) {
     case ModuleFieldType::Func:
@@ -529,6 +555,10 @@ void Module::AppendField(std::unique_ptr<ModuleField> field) {
 
     case ModuleFieldType::Event:
       AppendField(cast<EventModuleField>(std::move(field)));
+      break;
+
+    case ModuleFieldType::FuncNative:
+      AppendField(cast<FuncNativeModuleField>(std::move(field)));
       break;
   }
 }

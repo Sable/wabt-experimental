@@ -155,6 +155,12 @@ struct FuncDeclaration {
   FuncSignature sig;
 };
 
+struct FuncNative {
+  std::string var_name;
+  std::string native_name;
+  FuncDeclaration decl;
+};
+
 enum class ExprType {
   AtomicLoad,
   AtomicRmw,
@@ -170,6 +176,7 @@ enum class ExprType {
   BrTable,
   Call,
   CallIndirect,
+  CallNative,
   Compare,
   Const,
   Convert,
@@ -326,6 +333,7 @@ typedef VarExpr<ExprType::LocalSet> LocalSetExpr;
 typedef VarExpr<ExprType::LocalTee> LocalTeeExpr;
 typedef VarExpr<ExprType::ReturnCall> ReturnCallExpr;
 typedef VarExpr<ExprType::Throw> ThrowExpr;
+typedef VarExpr<ExprType::CallNative> CallNativeExpr;
 
 typedef VarExpr<ExprType::MemoryInit> MemoryInitExpr;
 typedef VarExpr<ExprType::DataDrop> DataDropExpr;
@@ -668,6 +676,7 @@ enum class ModuleFieldType {
   Import,
   Export,
   FuncType,
+  FuncNative,
   Table,
   ElemSegment,
   Memory,
@@ -761,6 +770,14 @@ class TableModuleField : public ModuleFieldMixin<ModuleFieldType::Table> {
   Table table;
 };
 
+class FuncNativeModuleField : public ModuleFieldMixin<ModuleFieldType::FuncNative> {
+public:
+  explicit FuncNativeModuleField(const Location& loc = Location())
+      : ModuleFieldMixin<ModuleFieldType::FuncNative>(loc) {}
+
+  FuncNative func_native;
+};
+
 class ElemSegmentModuleField
     : public ModuleFieldMixin<ModuleFieldType::ElemSegment> {
  public:
@@ -836,6 +853,9 @@ struct Module {
   const ElemSegment* GetElemSegment(const Var&) const;
   ElemSegment* GetElemSegment(const Var&);
   Index GetElemSegmentIndex(const Var&) const;
+  const FuncNative* GetFuncNative(const Var&) const;
+  FuncNative* GetFuncNative(const Var&);
+  Index GetFuncNativeIndex(const Var&) const;
 
   bool IsImport(ExternalKind kind, const Var&) const;
   bool IsImport(const Export& export_) const {
@@ -854,6 +874,7 @@ struct Module {
   void AppendField(std::unique_ptr<MemoryModuleField>);
   void AppendField(std::unique_ptr<StartModuleField>);
   void AppendField(std::unique_ptr<TableModuleField>);
+  void AppendField(std::unique_ptr<FuncNativeModuleField>);
   void AppendField(std::unique_ptr<ModuleField>);
   void AppendFields(ModuleFieldList*);
 
@@ -875,6 +896,7 @@ struct Module {
   std::vector<Import*> imports;
   std::vector<Export*> exports;
   std::vector<FuncType*> func_types;
+  std::vector<FuncNative*> func_natives;
   std::vector<Table*> tables;
   std::vector<ElemSegment*> elem_segments;
   std::vector<Memory*> memories;
@@ -886,6 +908,7 @@ struct Module {
   BindingHash global_bindings;
   BindingHash export_bindings;
   BindingHash func_type_bindings;
+  BindingHash func_native_bindings;
   BindingHash table_bindings;
   BindingHash memory_bindings;
   BindingHash data_segment_bindings;

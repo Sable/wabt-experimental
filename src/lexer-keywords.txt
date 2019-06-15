@@ -32,6 +32,7 @@ br_on_exn, TokenType::BrOnExn, Opcode::BrOnExn
 br_table, TokenType::BrTable, Opcode::BrTable
 br, TokenType::Br, Opcode::Br
 call_indirect, TokenType::CallIndirect, Opcode::CallIndirect
+call_native, TokenType::CallNative, Opcode::CallNative
 call, TokenType::Call, Opcode::Call
 catch, TokenType::Catch, Opcode::Catch
 current_memory, TokenType::MemorySize, Opcode::MemorySize
@@ -436,6 +437,7 @@ memory.size, TokenType::MemorySize, Opcode::MemorySize
 memory, TokenType::Memory
 module, TokenType::Module
 mut, TokenType::Mut
+native, TokenType::Native
 nop, TokenType::Nop, Opcode::Nop
 offset, TokenType::Offset
 param, TokenType::Param

@@ -441,6 +441,10 @@ Result TypeChecker::OnCallIndirect(const TypeVector& param_types,
   return result;
 }
 
+Result TypeChecker::OnCallNative(const TypeVector& param_types, const TypeVector& result_types) {
+  return PopAndCheckCall(param_types, result_types, "call_native");
+}
+
 Result TypeChecker::OnReturnCall(const TypeVector& param_types,
                                  const TypeVector& result_types) {
   Result result = PopAndCheckSignature(param_types, "return_call");

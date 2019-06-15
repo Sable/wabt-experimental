@@ -2323,6 +2323,9 @@ Result BinaryReader::ReadSections() {
         section_result = ReadDataSection(section_size);
         result |= section_result;
         break;
+      case BinarySection::Native:
+        assert("!No implemented");
+        break;
       case BinarySection::Event:
         ERROR_UNLESS(options_.features.exceptions_enabled(),
                      "invalid section code: %u", section);

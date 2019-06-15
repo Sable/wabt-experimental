@@ -52,6 +52,7 @@ class Validator : public ExprVisitor::Delegate {
   Result OnBrTableExpr(BrTableExpr*) override;
   Result OnCallExpr(CallExpr*) override;
   Result OnCallIndirectExpr(CallIndirectExpr*) override;
+  Result OnCallNativeExpr(CallNativeExpr*) override;
   Result OnCompareExpr(CompareExpr*) override;
   Result OnConstExpr(ConstExpr*) override;
   Result OnConvertExpr(ConvertExpr*) override;
@@ -127,6 +128,7 @@ class Validator : public ExprVisitor::Delegate {
                   const char* desc,
                   Index* out_index);
   Result CheckFuncVar(const Var* var, const Func** out_func);
+  Result CheckFuncNativeVar(const Var* var, const FuncNative** out_func_native);
   Result CheckGlobalVar(const Var* var,
                         const Global** out_global,
                         Index* out_global_index);
@@ -275,6 +277,16 @@ Result Validator::CheckFuncVar(const Var* var, const Func** out_func) {
       CheckVar(current_module_->funcs.size(), var, "function", &index));
   if (out_func) {
     *out_func = current_module_->funcs[index];
+  }
+  return Result::Ok;
+}
+
+Result Validator::CheckFuncNativeVar(const Var* var, const FuncNative** out_func_native) {
+  Index index;
+  CHECK_RESULT(
+      CheckVar(current_module_->func_natives.size(), var, "native function", &index));
+  if (out_func_native) {
+    *out_func_native = current_module_->func_natives[index];
   }
   return Result::Ok;
 }
@@ -617,6 +629,16 @@ Result Validator::OnCallIndirectExpr(CallIndirectExpr* expr) {
   CheckFuncSignature(&expr->loc, expr->decl);
   typechecker_.OnCallIndirect(expr->decl.sig.param_types,
                               expr->decl.sig.result_types);
+  return Result::Ok;
+}
+
+Result Validator::OnCallNativeExpr(CallNativeExpr* expr) {
+  expr_loc_ = &expr->loc;
+  const FuncNative* callee;
+  if (Succeeded(CheckFuncNativeVar(&expr->var, &callee))) {
+    typechecker_.OnCallNative(callee->decl.sig.param_types,
+                              callee->decl.sig.result_types);
+  }
   return Result::Ok;
 }
 
@@ -1299,6 +1321,9 @@ Result Validator::CheckModule(const Module* module) {
         break;
 
       case ModuleFieldType::FuncType:
+        break;
+
+      case ModuleFieldType::FuncNative:
         break;
 
       case ModuleFieldType::Start: {
