@@ -638,7 +638,7 @@ Result WatWriter::ExprVisitorDelegate::OnCallExpr(CallExpr* expr) {
 }
 
 Result WatWriter::ExprVisitorDelegate::OnCallNativeExpr(CallNativeExpr* expr) {
-  writer_->WritePutsSpace(Opcode::CallIndirect_Opcode.GetName());
+  writer_->WritePutsSpace(Opcode::CallNative_Opcode.GetName());
   writer_->WriteVar(expr->var, NextChar::Newline);
   return Result::Ok;
 }

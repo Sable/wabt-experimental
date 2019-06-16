@@ -1323,8 +1323,13 @@ Result Validator::CheckModule(const Module* module) {
       case ModuleFieldType::FuncType:
         break;
 
-      case ModuleFieldType::FuncNative:
+      case ModuleFieldType::FuncNative: {
+        auto func_native = cast<FuncNativeModuleField>(&field)->func_native;
+        if (func_native.decl.has_func_type) {
+          CheckFuncTypeVar(&func_native.decl.type_var, nullptr);
+        }
         break;
+      }
 
       case ModuleFieldType::Start: {
         if (seen_start) {
