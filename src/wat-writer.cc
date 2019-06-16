@@ -1076,6 +1076,12 @@ void WatWriter::WriteFoldedExpr(const Expr* expr) {
       break;
     }
 
+    case ExprType::CallNative: {
+      const Var& var = cast<CallNativeExpr>(expr)->var;
+      PushExpr(expr, GetFuncParamCount(var), GetFuncResultCount(var));
+      break;
+    }
+
     case ExprType::Const:
     case ExprType::GlobalGet:
     case ExprType::LocalGet:
