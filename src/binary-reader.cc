@@ -1471,6 +1471,24 @@ Result BinaryReader::ReadFunctionBody(Offset end_offset) {
         break;
       }
 
+      case Opcode::Duplicate: {
+        CALLBACK0(OnDuplicateExpr);
+        CALLBACK0(OnOpcodeBare);
+        break;
+      }
+
+      case Opcode::Swap: {
+        CALLBACK0(OnSwapExpr);
+        CALLBACK0(OnOpcodeBare);
+        break;
+      }
+
+      case Opcode::Offset32: {
+        CALLBACK0(OnOffset32Expr);
+        CALLBACK0(OnOpcodeBare);
+        break;
+      }
+
       default:
         return ReportUnexpectedOpcode(opcode);
     }

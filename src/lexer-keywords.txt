@@ -39,6 +39,7 @@ current_memory, TokenType::MemorySize, Opcode::MemorySize
 data.drop, TokenType::DataDrop, Opcode::DataDrop
 data, TokenType::Data
 drop, TokenType::Drop, Opcode::Drop
+dup, TokenType::Duplicate, Opcode::Duplicate
 elem.drop, TokenType::ElemDrop, Opcode::ElemDrop
 elem, TokenType::Elem
 else, TokenType::Else, Opcode::Else
@@ -440,6 +441,7 @@ mut, TokenType::Mut
 native, TokenType::Native
 nop, TokenType::Nop, Opcode::Nop
 offset, TokenType::Offset
+offset32, TokenType::Offset32, Opcode::Offset32
 param, TokenType::Param
 passive, TokenType::Passive
 quote, TokenType::Quote
@@ -455,6 +457,7 @@ return, TokenType::Return, Opcode::Return
 select, TokenType::Select, Opcode::Select
 shared, TokenType::Shared
 start, TokenType::Start
+swap, TokenType::Swap, Opcode::Swap
 table.copy, TokenType::TableCopy, Opcode::TableCopy
 table.get, TokenType::TableGet, Opcode::TableGet
 table.grow, TokenType::TableGrow, Opcode::TableGrow

@@ -126,6 +126,9 @@ class ExprVisitor::Delegate {
   virtual Result OnTernaryExpr(TernaryExpr*) = 0;
   virtual Result OnSimdLaneOpExpr(SimdLaneOpExpr*) = 0;
   virtual Result OnSimdShuffleOpExpr(SimdShuffleOpExpr*) = 0;
+  virtual Result OnDuplicateExpr(DuplicateExpr*) = 0;
+  virtual Result OnSwapExpr(SwapExpr*) = 0;
+  virtual Result OnOffset32Expr(Offset32Expr*) = 0;
 };
 
 class ExprVisitor::DelegateNop : public ExprVisitor::Delegate {
@@ -196,6 +199,9 @@ class ExprVisitor::DelegateNop : public ExprVisitor::Delegate {
   Result OnTernaryExpr(TernaryExpr*) override { return Result::Ok; }
   Result OnSimdLaneOpExpr(SimdLaneOpExpr*) override { return Result::Ok; }
   Result OnSimdShuffleOpExpr(SimdShuffleOpExpr*) override { return Result::Ok; }
+  Result OnDuplicateExpr(DuplicateExpr*) override { return Result::Ok; }
+  Result OnSwapExpr(SwapExpr*) override { return Result::Ok; }
+  Result OnOffset32Expr(Offset32Expr*) override { return Result::Ok; }
 };
 
 }  // namespace wabt

@@ -197,6 +197,10 @@ class BinaryReaderIR : public BinaryReaderNop {
   Result OnSimdLaneOpExpr(Opcode opcode, uint64_t value) override;
   Result OnSimdShuffleOpExpr(Opcode opcode, v128 value) override;
 
+  Result OnDuplicateExpr() override;
+  Result OnSwapExpr() override;
+  Result OnOffset32Expr() override;
+
   Result OnElemSegmentCount(Index count) override;
   Result BeginElemSegment(Index index,
                           Index table_index,
@@ -976,6 +980,18 @@ Result BinaryReaderIR::OnSimdLaneOpExpr(Opcode opcode, uint64_t value) {
 
 Result BinaryReaderIR::OnSimdShuffleOpExpr(Opcode opcode, v128 value) {
   return AppendExpr(MakeUnique<SimdShuffleOpExpr>(opcode, value));
+}
+
+Result BinaryReaderIR::OnDuplicateExpr() {
+  return AppendExpr(MakeUnique<DuplicateExpr>());
+}
+
+Result BinaryReaderIR::OnSwapExpr() {
+  return AppendExpr(MakeUnique<SwapExpr>());
+}
+
+Result BinaryReaderIR::OnOffset32Expr() {
+  return AppendExpr(MakeUnique<Offset32Expr>());
 }
 
 Result BinaryReaderIR::OnElemSegmentCount(Index count) {

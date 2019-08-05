@@ -582,6 +582,9 @@ class WatWriter::ExprVisitorDelegate : public ExprVisitor::Delegate {
   Result OnTernaryExpr(TernaryExpr*) override;
   Result OnSimdLaneOpExpr(SimdLaneOpExpr*) override;
   Result OnSimdShuffleOpExpr(SimdShuffleOpExpr*) override;
+  Result OnDuplicateExpr(DuplicateExpr*) override;
+  Result OnSwapExpr(SwapExpr*) override;
+  Result OnOffset32Expr(Offset32Expr*) override;
 
  private:
   WatWriter* writer_;
@@ -947,6 +950,21 @@ Result WatWriter::ExprVisitorDelegate::OnSimdLaneOpExpr(SimdLaneOpExpr* expr) {
   writer_->WritePutsSpace(expr->opcode.GetName());
   writer_->Writef("%" PRIu64, (expr->val));
   writer_->WritePutsNewline("");
+  return Result::Ok;
+}
+
+Result WatWriter::ExprVisitorDelegate::OnDuplicateExpr(DuplicateExpr* expr) {
+  writer_->WritePutsNewline(Opcode::Duplicate_Opcode.GetName());
+  return Result::Ok;
+}
+
+Result WatWriter::ExprVisitorDelegate::OnSwapExpr(SwapExpr* expr) {
+  writer_->WritePutsNewline(Opcode::Swap_Opcode.GetName());
+  return Result::Ok;
+}
+
+Result WatWriter::ExprVisitorDelegate::OnOffset32Expr(Offset32Expr* expr) {
+  writer_->WritePutsNewline(Opcode::Offset32_Opcode.GetName());
   return Result::Ok;
 }
 
