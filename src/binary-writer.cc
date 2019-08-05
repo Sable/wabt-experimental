@@ -709,6 +709,16 @@ void BinaryWriter::WriteExpr(const Func* func, const Expr* expr) {
     case ExprType::Unreachable:
       WriteOpcode(stream_, Opcode::Unreachable);
       break;
+    case ExprType::Duplicate:
+      WriteOpcode(stream_, Opcode::Duplicate);
+      break;
+    case ExprType::Swap:
+      WriteOpcode(stream_, Opcode::Swap);
+      break;
+    case ExprType::Offset32: {
+      WriteOpcode(stream_, Opcode::Offset32);
+      break;
+    }
   }
 }
 

@@ -181,6 +181,7 @@ enum class ExprType {
   Const,
   Convert,
   Drop,
+  Duplicate,
   GlobalGet,
   GlobalSet,
   If,
@@ -196,6 +197,7 @@ enum class ExprType {
   MemoryInit,
   MemorySize,
   Nop,
+  Offset32,
   RefIsNull,
   RefNull,
   Rethrow,
@@ -206,6 +208,7 @@ enum class ExprType {
   SimdLaneOp,
   SimdShuffleOp,
   Store,
+  Swap,
   TableCopy,
   ElemDrop,
   TableInit,
@@ -268,15 +271,18 @@ class ExprMixin : public Expr {
 };
 
 typedef ExprMixin<ExprType::Drop> DropExpr;
+typedef ExprMixin<ExprType::Duplicate> DuplicateExpr;
 typedef ExprMixin<ExprType::MemoryGrow> MemoryGrowExpr;
 typedef ExprMixin<ExprType::MemorySize> MemorySizeExpr;
 typedef ExprMixin<ExprType::MemoryCopy> MemoryCopyExpr;
 typedef ExprMixin<ExprType::MemoryFill> MemoryFillExpr;
 typedef ExprMixin<ExprType::TableCopy> TableCopyExpr;
 typedef ExprMixin<ExprType::Nop> NopExpr;
+typedef ExprMixin<ExprType::Offset32> Offset32Expr;
 typedef ExprMixin<ExprType::Rethrow> RethrowExpr;
 typedef ExprMixin<ExprType::Return> ReturnExpr;
 typedef ExprMixin<ExprType::Select> SelectExpr;
+typedef ExprMixin<ExprType::Swap> SwapExpr;
 typedef ExprMixin<ExprType::Unreachable> UnreachableExpr;
 typedef ExprMixin<ExprType::RefNull> RefNullExpr;
 typedef ExprMixin<ExprType::RefIsNull> RefIsNullExpr;

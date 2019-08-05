@@ -767,6 +767,39 @@ Result TypeChecker::OnSimdShuffleOp(Opcode opcode, v128 lane_idx) {
   return result;
 }
 
+Result TypeChecker::OnDuplicate() {
+  Result result = Result::Ok;
+  Type type = Type::Any;
+  result |= PeekType(0, &type);
+  PrintStackIfFailed(result, "dup", type);
+  PushType(type);
+  return result;
+}
+
+Result TypeChecker::OnSwap() {
+  Result result = Result::Ok;
+  Type type0 = Type::Any;
+  Type type1 = Type::Any;
+  result |= PeekType(0, &type0);
+  result |= PeekType(1, &type1);
+  result |= DropTypes(2);
+  PrintStackIfFailed(result, "swap", type0, type1);
+  PushType(type1);
+  PushType(type0);
+  return result;
+}
+
+Result TypeChecker::OnOffset32() {
+  Result result = Result::Ok;
+  result |= PeekAndCheckType(0, Type::I32);
+  result |= PeekAndCheckType(1, Type::I32);
+  result |= PeekAndCheckType(2, Type::I32);
+  result |= DropTypes(3);
+  PrintStackIfFailed(result, "offset32", Type::I32);
+  PushType(Type::I32);
+  return result;
+}
+
 Result TypeChecker::OnUnreachable() {
   return SetUnreachable();
 }

@@ -157,6 +157,9 @@ bool IsPlainInstr(TokenType token_type) {
     case TokenType::Ternary:
     case TokenType::SimdLaneOp:
     case TokenType::SimdShuffleOp:
+    case TokenType::Duplicate:
+    case TokenType::Swap:
+    case TokenType::Offset32:
       return true;
     default:
       return false;
@@ -1805,6 +1808,24 @@ Result WastParser::ParsePlainInstr(std::unique_ptr<Expr>* out_expr) {
 
       out_expr->reset(
           new SimdShuffleOpExpr(token.opcode(), value, loc));
+      break;
+    }
+
+    case TokenType::Duplicate: {
+      Consume();
+      out_expr->reset(new DuplicateExpr(loc));
+      break;
+    }
+
+    case TokenType::Swap: {
+      Consume();
+      out_expr->reset(new SwapExpr(loc));
+      break;
+    }
+
+    case TokenType::Offset32: {
+      Consume();
+      out_expr->reset(new Offset32Expr(loc));
       break;
     }
 
