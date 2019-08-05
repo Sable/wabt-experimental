@@ -52,12 +52,10 @@ WABT_OPCODE(___,  ___,  ___,  ___,  0,  0,    0x0e, BrTable, "br_table")
 WABT_OPCODE(___,  ___,  ___,  ___,  0,  0,    0x0f, Return, "return")
 WABT_OPCODE(___,  ___,  ___,  ___,  0,  0,    0x10, Call, "call")
 WABT_OPCODE(___,  ___,  ___,  ___,  0,  0,    0x11, CallIndirect, "call_indirect")
-WABT_OPCODE(___,  ___,  ___,  ___,  0,  0,    0x1d, CallNative, "call_native")
 WABT_OPCODE(___,  ___,  ___,  ___,  0,  0,    0x12, ReturnCall, "return_call")
 WABT_OPCODE(___,  ___,  ___,  ___,  0,  0,    0x13, ReturnCallIndirect, "return_call_indirect")
 WABT_OPCODE(___,  ___,  ___,  ___,  0,  0,    0x1a, Drop, "drop")
 WABT_OPCODE(___,  ___,  ___,  ___,  0,  0,    0x1b, Select, "select")
-WABT_OPCODE(___,  ___,  ___,  ___,  0,  0,    0x1c, Offset32, "offset32")
 WABT_OPCODE(___,  ___,  ___,  ___,  0,  0,    0x20, LocalGet, "local.get")
 WABT_OPCODE(___,  ___,  ___,  ___,  0,  0,    0x21, LocalSet, "local.set")
 WABT_OPCODE(___,  ___,  ___,  ___,  0,  0,    0x22, LocalTee, "local.tee")
@@ -229,10 +227,6 @@ WABT_OPCODE(___,  ___,  ___,  ___,  0,  0,    0xe1, InterpBrUnless, "br_unless")
 WABT_OPCODE(___,  ___,  ___,  ___,  0,  0,    0xe2, InterpCallHost, "call_host")
 WABT_OPCODE(___,  ___,  ___,  ___,  0,  0,    0xe3, InterpData, "data")
 WABT_OPCODE(___,  ___,  ___,  ___,  0,  0,    0xe4, InterpDropKeep, "drop_keep")
-
-/* Experimental opcdes */
-WABT_OPCODE(___,  ___,  ___,  ___,  0,  0,    0xf0, Duplicate, "dup")
-WABT_OPCODE(___,  ___,  ___,  ___,  0,  0,    0xf1, Swap, "swap")
 
 /* Saturating float-to-int opcodes (--enable-saturating-float-to-int) */
 WABT_OPCODE(I32,  F32,  ___,  ___,  0,  0xfc, 0x00, I32TruncSatF32S, "i32.trunc_sat_f32_s")

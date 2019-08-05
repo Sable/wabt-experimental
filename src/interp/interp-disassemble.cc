@@ -106,7 +106,6 @@ void Environment::Disassemble(Stream* stream,
         break;
 
       case Opcode::Call:
-      case Opcode::CallNative:
       case Opcode::ReturnCall:
         stream->Writef("%s @%u\n", opcode.GetName(), ReadU32(&pc));
         break;

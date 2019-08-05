@@ -1780,11 +1780,6 @@ Result Thread::Run(int num_instructions) {
         break;
       }
 
-      case Opcode::CallNative: {
-        assert("Interp for native calls not implemented!");
-        break;
-      }
-
       case Opcode::CallIndirect: {
         Table* table = ReadTable(&pc);
         Index sig_index = ReadU32(&pc);

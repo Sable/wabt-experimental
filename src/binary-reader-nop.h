@@ -283,10 +283,6 @@ class BinaryReaderNop : public BinaryReaderDelegate {
     return Result::Ok;
   }
 
-  Result OnDuplicateExpr() override { return Result::Ok; }
-  Result OnSwapExpr() override { return Result::Ok; }
-  Result OnOffset32Expr() override { return Result::Ok; }
-
   /* Elem section */
   Result BeginElemSection(Offset size) override { return Result::Ok; }
   Result OnElemSegmentCount(Index count) override { return Result::Ok; }

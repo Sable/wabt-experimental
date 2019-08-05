@@ -734,10 +734,6 @@ DEFINE0(OnNopExpr)
 DEFINE0(OnRethrowExpr);
 DEFINE_INDEX_DESC(OnReturnCallExpr, "func_index")
 
-DEFINE0(OnDuplicateExpr)
-DEFINE0(OnSwapExpr)
-DEFINE0(OnOffset32Expr)
-
 DEFINE_INDEX_INDEX(OnReturnCallIndirectExpr, "sig_index", "table_index")
 DEFINE0(OnReturnExpr)
 DEFINE0(OnSelectExpr)

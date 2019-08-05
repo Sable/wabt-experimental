@@ -447,12 +447,6 @@ void BinaryWriter::WriteExpr(const Func* func, const Expr* expr) {
       WriteU32Leb128WithReloc(index, "function index", RelocType::FuncIndexLEB);
       break;
     }
-    case ExprType::CallNative:{
-      Index index = module_->GetFuncNativeIndex(cast<CallNativeExpr>(expr)->var);
-      WriteOpcode(stream_, Opcode::CallNative);
-      WriteU32Leb128WithReloc(index, "native function index", RelocType::FuncIndexLEB);
-      break;
-    }
     case ExprType::ReturnCall: {
       Index index = module_->GetFuncIndex(cast<ReturnCallExpr>(expr)->var);
       WriteOpcode(stream_, Opcode::ReturnCall);
@@ -709,16 +703,6 @@ void BinaryWriter::WriteExpr(const Func* func, const Expr* expr) {
     case ExprType::Unreachable:
       WriteOpcode(stream_, Opcode::Unreachable);
       break;
-    case ExprType::Duplicate:
-      WriteOpcode(stream_, Opcode::Duplicate);
-      break;
-    case ExprType::Swap:
-      WriteOpcode(stream_, Opcode::Swap);
-      break;
-    case ExprType::Offset32: {
-      WriteOpcode(stream_, Opcode::Offset32);
-      break;
-    }
   }
 }
 
@@ -1112,30 +1096,6 @@ Result BinaryWriter::WriteModule() {
       WriteU32Leb128(stream_, segment->data.size(), "data segment size");
       WriteHeader("data segment data", i);
       stream_->WriteData(segment->data, "data segment data");
-    }
-    EndSection();
-  }
-
-  if (module_->func_natives.size()) {
-    BeginKnownSection(BinarySection::Native);
-    WriteU32Leb128(stream_, module_->func_natives.size(), "num natives");
-    for (size_t i = 0; i < module_->func_natives.size(); ++i) {
-      const FuncNative* func_native = module_->func_natives[i];
-      const FuncSignature* sig = &func_native->decl.sig;
-      WriteHeader("native", i);
-      WriteStr(stream_, func_native->native_name, "native name", PrintChars::Yes);
-      WriteType(stream_, Type::Func);
-      Index num_params = sig->param_types.size();
-      Index num_results = sig->result_types.size();
-      WriteU32Leb128(stream_, num_params, "num params");
-      for (size_t j = 0; j < num_params; ++j) {
-        WriteType(stream_, sig->param_types[j]);
-      }
-
-      WriteU32Leb128(stream_, num_results, "num results");
-      for (size_t j = 0; j < num_results; ++j) {
-        WriteType(stream_, sig->result_types[j]);
-      }
     }
     EndSection();
   }

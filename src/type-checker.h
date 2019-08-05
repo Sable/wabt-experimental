@@ -76,7 +76,6 @@ class TypeChecker {
   Result OnCall(const TypeVector& param_types, const TypeVector& result_types);
   Result OnCallIndirect(const TypeVector& param_types,
                         const TypeVector& result_types);
-  Result OnCallNative(const TypeVector& param_types, const TypeVector& result_types);
   Result OnReturnCall(const TypeVector& param_types, const TypeVector& result_types);
   Result OnReturnCallIndirect(const TypeVector& param_types, const TypeVector& result_types);
   Result OnCatch();
@@ -115,9 +114,6 @@ class TypeChecker {
   Result OnSimdLaneOp(Opcode, uint64_t);
   Result OnSimdShuffleOp(Opcode, v128);
   Result OnStore(Opcode);
-  Result OnDuplicate();
-  Result OnSwap();
-  Result OnOffset32();
   Result OnTernary(Opcode);
   Result OnThrow(const TypeVector& sig);
   Result OnTry(const TypeVector& param_types, const TypeVector& result_types);
