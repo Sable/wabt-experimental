@@ -168,7 +168,6 @@ class WatWriter {
   void WriteExport(const Export& export_);
   void WriteFuncType(const FuncType& func_type);
   void WriteStartFunction(const Var& start);
-  void WriteFuncNativeFunction(const FuncNative& func);
 
   class ExprVisitorDelegate;
 
@@ -204,7 +203,6 @@ class WatWriter {
   std::vector<const Import*> inline_import_map_[kExternalKindCount];
 
   Index func_index_ = 0;
-  Index native_func_index_ = 0;
   Index global_index_ = 0;
   Index table_index_ = 0;
   Index memory_index_ = 0;
@@ -529,7 +527,6 @@ class WatWriter::ExprVisitorDelegate : public ExprVisitor::Delegate {
   Result OnBrTableExpr(BrTableExpr*) override;
   Result OnCallExpr(CallExpr*) override;
   Result OnCallIndirectExpr(CallIndirectExpr*) override;
-  Result OnCallNativeExpr(CallNativeExpr*) override;
   Result OnCompareExpr(CompareExpr*) override;
   Result OnConstExpr(ConstExpr*) override;
   Result OnConvertExpr(ConvertExpr*) override;
@@ -582,9 +579,6 @@ class WatWriter::ExprVisitorDelegate : public ExprVisitor::Delegate {
   Result OnTernaryExpr(TernaryExpr*) override;
   Result OnSimdLaneOpExpr(SimdLaneOpExpr*) override;
   Result OnSimdShuffleOpExpr(SimdShuffleOpExpr*) override;
-  Result OnDuplicateExpr(DuplicateExpr*) override;
-  Result OnSwapExpr(SwapExpr*) override;
-  Result OnOffset32Expr(Offset32Expr*) override;
 
  private:
   WatWriter* writer_;
@@ -636,12 +630,6 @@ Result WatWriter::ExprVisitorDelegate::OnBrTableExpr(BrTableExpr* expr) {
 
 Result WatWriter::ExprVisitorDelegate::OnCallExpr(CallExpr* expr) {
   writer_->WritePutsSpace(Opcode::Call_Opcode.GetName());
-  writer_->WriteVar(expr->var, NextChar::Newline);
-  return Result::Ok;
-}
-
-Result WatWriter::ExprVisitorDelegate::OnCallNativeExpr(CallNativeExpr* expr) {
-  writer_->WritePutsSpace(Opcode::CallNative_Opcode.GetName());
   writer_->WriteVar(expr->var, NextChar::Newline);
   return Result::Ok;
 }
@@ -953,21 +941,6 @@ Result WatWriter::ExprVisitorDelegate::OnSimdLaneOpExpr(SimdLaneOpExpr* expr) {
   return Result::Ok;
 }
 
-Result WatWriter::ExprVisitorDelegate::OnDuplicateExpr(DuplicateExpr* expr) {
-  writer_->WritePutsNewline(Opcode::Duplicate_Opcode.GetName());
-  return Result::Ok;
-}
-
-Result WatWriter::ExprVisitorDelegate::OnSwapExpr(SwapExpr* expr) {
-  writer_->WritePutsNewline(Opcode::Swap_Opcode.GetName());
-  return Result::Ok;
-}
-
-Result WatWriter::ExprVisitorDelegate::OnOffset32Expr(Offset32Expr* expr) {
-  writer_->WritePutsNewline(Opcode::Offset32_Opcode.GetName());
-  return Result::Ok;
-}
-
 Result WatWriter::ExprVisitorDelegate::OnSimdShuffleOpExpr(
     SimdShuffleOpExpr* expr) {
   writer_->WritePutsSpace(expr->opcode.GetName());
@@ -1091,12 +1064,6 @@ void WatWriter::WriteFoldedExpr(const Expr* expr) {
       const auto* rci_expr = cast<ReturnCallIndirectExpr>(expr);
       PushExpr(expr, rci_expr->decl.GetNumParams() + 1,
                rci_expr->decl.GetNumResults());
-      break;
-    }
-
-    case ExprType::CallNative: {
-      const Var& var = cast<CallNativeExpr>(expr)->var;
-      PushExpr(expr, GetFuncParamCount(var), GetFuncResultCount(var));
       break;
     }
 
@@ -1633,25 +1600,6 @@ void WatWriter::WriteStartFunction(const Var& start) {
   WriteCloseNewline();
 }
 
-void WatWriter::WriteFuncNativeFunction(const wabt::FuncNative &func) {
-  WriteOpenSpace("native");
-  WriteQuotedString(func.native_name, NextChar::Space);
-  WriteOpenSpace("func");
-  WriteNameOrIndex(func.var_name, native_func_index_, NextChar::Space);
-  if (func.decl.has_func_type) {
-    WriteOpenSpace("type");
-    WriteVar(func.decl.type_var, NextChar::None);
-    WriteCloseSpace();
-  }
-
-  if (!func.decl.has_func_type) {
-    WriteFuncSigSpace(func.decl.sig);
-  }
-  native_func_index_++;
-  WriteCloseSpace();
-  WriteCloseNewline();
-}
-
 Result WatWriter::WriteModule(const Module& module) {
   module_ = &module;
   BuildInlineExportMap();
@@ -1696,9 +1644,6 @@ Result WatWriter::WriteModule(const Module& module) {
         break;
       case ModuleFieldType::Start:
         WriteStartFunction(cast<StartModuleField>(&field)->start);
-        break;
-      case ModuleFieldType::FuncNative:
-        WriteFuncNativeFunction(cast<FuncNativeModuleField>(&field)->func_native);
         break;
     }
   }

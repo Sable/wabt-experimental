@@ -43,7 +43,6 @@ class NameApplier : public ExprVisitor::DelegateNop {
   Result OnBrTableExpr(BrTableExpr*) override;
   Result OnCallExpr(CallExpr*) override;
   Result OnCallIndirectExpr(CallIndirectExpr*) override;
-  Result OnCallNativeExpr(CallNativeExpr*) override;
   Result OnReturnCallExpr(ReturnCallExpr*) override;
   Result OnReturnCallIndirectExpr(ReturnCallIndirectExpr*) override;
   Result OnGlobalGetExpr(GlobalGetExpr*) override;
@@ -74,7 +73,6 @@ class NameApplier : public ExprVisitor::DelegateNop {
   void UseNameForVar(string_view name, Var* var);
   Result UseNameForFuncTypeVar(Var* var);
   Result UseNameForFuncVar(Var* var);
-  Result UseNameForNativeFuncVar(Var* var);
   Result UseNameForGlobalVar(Var* var);
   Result UseNameForTableVar(Var* var);
   Result UseNameForMemoryVar(Var* var);
@@ -149,15 +147,6 @@ Result NameApplier::UseNameForFuncVar(Var* var) {
     return Result::Error;
   }
   UseNameForVar(func->name, var);
-  return Result::Ok;
-}
-
-Result NameApplier::UseNameForNativeFuncVar(wabt::Var *var) {
-  FuncNative* func = module_->GetFuncNative(*var);
-  if (!func) {
-    return Result::Error;
-  }
-  UseNameForVar(func->var_name, var);
   return Result::Ok;
 }
 
@@ -348,11 +337,6 @@ Result NameApplier::OnCallIndirectExpr(CallIndirectExpr* expr) {
     CHECK_RESULT(UseNameForFuncTypeVar(&expr->decl.type_var));
   }
   CHECK_RESULT(UseNameForTableVar(&expr->table));
-  return Result::Ok;
-}
-
-Result NameApplier::OnCallNativeExpr(wabt::CallNativeExpr* expr) {
-  CHECK_RESULT(UseNameForNativeFuncVar(&expr->var));
   return Result::Ok;
 }
 
