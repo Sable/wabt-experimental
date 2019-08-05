@@ -196,6 +196,10 @@ Result ExprVisitor::HandleDefaultState(Expr* expr) {
       CHECK_RESULT(delegate_->OnCallIndirectExpr(cast<CallIndirectExpr>(expr)));
       break;
 
+    case ExprType::CallNative:
+      CHECK_RESULT(delegate_->OnCallNativeExpr(cast<CallNativeExpr>(expr)));
+      break;
+
     case ExprType::Compare:
       CHECK_RESULT(delegate_->OnCompareExpr(cast<CompareExpr>(expr)));
       break;
@@ -373,6 +377,21 @@ Result ExprVisitor::HandleDefaultState(Expr* expr) {
     case ExprType::Unreachable:
       CHECK_RESULT(delegate_->OnUnreachableExpr(cast<UnreachableExpr>(expr)));
       break;
+
+    case ExprType::Duplicate: {
+      CHECK_RESULT(delegate_->OnDuplicateExpr(cast<DuplicateExpr>(expr)));
+      break;
+    }
+
+    case ExprType::Swap: {
+      CHECK_RESULT(delegate_->OnSwapExpr(cast<SwapExpr>(expr)));
+      break;
+    }
+
+    case ExprType::Offset32: {
+      CHECK_RESULT(delegate_->OnOffset32Expr(cast<Offset32Expr>(expr)));
+      break;
+    }
   }
 
   return Result::Ok;

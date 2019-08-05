@@ -73,6 +73,7 @@ class ExprVisitor::Delegate {
   virtual Result OnBrTableExpr(BrTableExpr*) = 0;
   virtual Result OnCallExpr(CallExpr*) = 0;
   virtual Result OnCallIndirectExpr(CallIndirectExpr*) = 0;
+  virtual Result OnCallNativeExpr(CallNativeExpr*) = 0;
   virtual Result OnCompareExpr(CompareExpr*) = 0;
   virtual Result OnConstExpr(ConstExpr*) = 0;
   virtual Result OnConvertExpr(ConvertExpr*) = 0;
@@ -125,6 +126,9 @@ class ExprVisitor::Delegate {
   virtual Result OnTernaryExpr(TernaryExpr*) = 0;
   virtual Result OnSimdLaneOpExpr(SimdLaneOpExpr*) = 0;
   virtual Result OnSimdShuffleOpExpr(SimdShuffleOpExpr*) = 0;
+  virtual Result OnDuplicateExpr(DuplicateExpr*) = 0;
+  virtual Result OnSwapExpr(SwapExpr*) = 0;
+  virtual Result OnOffset32Expr(Offset32Expr*) = 0;
 };
 
 class ExprVisitor::DelegateNop : public ExprVisitor::Delegate {
@@ -138,6 +142,7 @@ class ExprVisitor::DelegateNop : public ExprVisitor::Delegate {
   Result OnBrTableExpr(BrTableExpr*) override { return Result::Ok; }
   Result OnCallExpr(CallExpr*) override { return Result::Ok; }
   Result OnCallIndirectExpr(CallIndirectExpr*) override { return Result::Ok; }
+  Result OnCallNativeExpr(CallNativeExpr*) override { return Result::Ok; }
   Result OnCompareExpr(CompareExpr*) override { return Result::Ok; }
   Result OnConstExpr(ConstExpr*) override { return Result::Ok; }
   Result OnConvertExpr(ConvertExpr*) override { return Result::Ok; }
@@ -194,6 +199,9 @@ class ExprVisitor::DelegateNop : public ExprVisitor::Delegate {
   Result OnTernaryExpr(TernaryExpr*) override { return Result::Ok; }
   Result OnSimdLaneOpExpr(SimdLaneOpExpr*) override { return Result::Ok; }
   Result OnSimdShuffleOpExpr(SimdShuffleOpExpr*) override { return Result::Ok; }
+  Result OnDuplicateExpr(DuplicateExpr*) override { return Result::Ok; }
+  Result OnSwapExpr(SwapExpr*) override { return Result::Ok; }
+  Result OnOffset32Expr(Offset32Expr*) override { return Result::Ok; }
 };
 
 }  // namespace wabt

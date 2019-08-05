@@ -44,6 +44,7 @@ class NameResolver : public ExprVisitor::DelegateNop {
   Result OnBrTableExpr(BrTableExpr*) override;
   Result OnCallExpr(CallExpr*) override;
   Result OnCallIndirectExpr(CallIndirectExpr*) override;
+  Result OnCallNativeExpr(CallNativeExpr*) override;
   Result OnReturnCallExpr(ReturnCallExpr *) override;
   Result OnReturnCallIndirectExpr(ReturnCallIndirectExpr*) override;
   Result OnGlobalGetExpr(GlobalGetExpr*) override;
@@ -78,6 +79,7 @@ class NameResolver : public ExprVisitor::DelegateNop {
   void ResolveLabelVar(Var* var);
   void ResolveVar(const BindingHash* bindings, Var* var, const char* desc);
   void ResolveFuncVar(Var* var);
+  void ResolveNativeFuncVar(Var* var);
   void ResolveGlobalVar(Var* var);
   void ResolveFuncTypeVar(Var* var);
   void ResolveTableVar(Var* var);
@@ -177,6 +179,10 @@ void NameResolver::ResolveVar(const BindingHash* bindings,
 
 void NameResolver::ResolveFuncVar(Var* var) {
   ResolveVar(&current_module_->func_bindings, var, "function");
+}
+
+void NameResolver::ResolveNativeFuncVar(Var* var) {
+  ResolveVar(&current_module_->func_native_bindings, var, "native function");
 }
 
 void NameResolver::ResolveGlobalVar(Var* var) {
@@ -285,6 +291,11 @@ Result NameResolver::OnCallIndirectExpr(CallIndirectExpr* expr) {
     ResolveFuncTypeVar(&expr->decl.type_var);
   }
   ResolveTableVar(&expr->table);
+  return Result::Ok;
+}
+
+Result NameResolver::OnCallNativeExpr(wabt::CallNativeExpr* expr) {
+  ResolveNativeFuncVar(&expr->var);
   return Result::Ok;
 }
 

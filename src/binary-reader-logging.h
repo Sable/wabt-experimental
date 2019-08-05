@@ -219,6 +219,10 @@ class BinaryReaderLogging : public BinaryReaderDelegate {
   Result OnSimdLaneOpExpr(Opcode opcode, uint64_t value) override;
   Result OnSimdShuffleOpExpr(Opcode opcode, v128 value) override;
 
+  Result OnDuplicateExpr() override;
+  Result OnSwapExpr() override;
+  Result OnOffset32Expr() override;
+
   Result BeginElemSection(Offset size) override;
   Result OnElemSegmentCount(Index count) override;
   Result BeginElemSegment(Index index,

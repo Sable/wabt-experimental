@@ -214,6 +214,10 @@ class BinaryReaderInterp : public BinaryReaderNop {
   wabt::Result OnSimdLaneOpExpr(wabt::Opcode opcode, uint64_t value) override;
   wabt::Result OnSimdShuffleOpExpr(wabt::Opcode opcode, v128 value) override;
 
+  wabt::Result OnDuplicateExpr() override;
+  wabt::Result OnSwapExpr() override;
+  wabt::Result OnOffset32Expr() override;
+
   wabt::Result OnElemSegmentCount(Index count) override;
   wabt::Result BeginElemSegment(Index index,
                                 Index table_index,
@@ -1033,6 +1037,24 @@ wabt::Result BinaryReaderInterp::OnStartFunction(Index func_index) {
     return wabt::Result::Error;
   }
   module_->start_func_index = start_func_index;
+  return wabt::Result::Ok;
+}
+
+wabt::Result BinaryReaderInterp::OnDuplicateExpr() {
+  CHECK_RESULT(typechecker_.OnDuplicate());
+  CHECK_RESULT(EmitOpcode(Opcode::Duplicate));
+  return wabt::Result::Ok;
+}
+
+wabt::Result BinaryReaderInterp::OnSwapExpr() {
+  CHECK_RESULT(typechecker_.OnSwap());
+  CHECK_RESULT(EmitOpcode(Opcode::Swap));
+  return wabt::Result::Ok;
+}
+
+wabt::Result BinaryReaderInterp::OnOffset32Expr() {
+  CHECK_RESULT(typechecker_.OnOffset32());
+  CHECK_RESULT(EmitOpcode(Opcode::Offset32));
   return wabt::Result::Ok;
 }
 

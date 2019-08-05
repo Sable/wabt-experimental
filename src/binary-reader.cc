@@ -1471,6 +1471,24 @@ Result BinaryReader::ReadFunctionBody(Offset end_offset) {
         break;
       }
 
+      case Opcode::Duplicate: {
+        CALLBACK0(OnDuplicateExpr);
+        CALLBACK0(OnOpcodeBare);
+        break;
+      }
+
+      case Opcode::Swap: {
+        CALLBACK0(OnSwapExpr);
+        CALLBACK0(OnOpcodeBare);
+        break;
+      }
+
+      case Opcode::Offset32: {
+        CALLBACK0(OnOffset32Expr);
+        CALLBACK0(OnOpcodeBare);
+        break;
+      }
+
       default:
         return ReportUnexpectedOpcode(opcode);
     }
@@ -2322,6 +2340,9 @@ Result BinaryReader::ReadSections() {
       case BinarySection::Data:
         section_result = ReadDataSection(section_size);
         result |= section_result;
+        break;
+      case BinarySection::Native:
+        assert("!No implemented");
         break;
       case BinarySection::Event:
         ERROR_UNLESS(options_.features.exceptions_enabled(),

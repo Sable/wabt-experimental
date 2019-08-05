@@ -144,6 +144,7 @@ class WastParser {
   Result ParseMemoryModuleField(Module*);
   Result ParseStartModuleField(Module*);
   Result ParseTableModuleField(Module*);
+  Result ParseNativeModuleField(Module*);
 
   Result ParseExportDesc(Export*);
   Result ParseInlineExports(ModuleFieldList*, ExternalKind);

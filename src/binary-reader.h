@@ -263,6 +263,10 @@ class BinaryReaderDelegate {
   virtual Result OnThrowExpr(Index event_index) = 0;
   virtual Result OnTryExpr(Type sig_type) = 0;
 
+  virtual Result OnDuplicateExpr() = 0;
+  virtual Result OnSwapExpr() = 0;
+  virtual Result OnOffset32Expr() = 0;
+
   virtual Result OnUnaryExpr(Opcode opcode) = 0;
   virtual Result OnTernaryExpr(Opcode opcode) = 0;
   virtual Result OnUnreachableExpr() = 0;

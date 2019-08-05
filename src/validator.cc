@@ -52,6 +52,7 @@ class Validator : public ExprVisitor::Delegate {
   Result OnBrTableExpr(BrTableExpr*) override;
   Result OnCallExpr(CallExpr*) override;
   Result OnCallIndirectExpr(CallIndirectExpr*) override;
+  Result OnCallNativeExpr(CallNativeExpr*) override;
   Result OnCompareExpr(CompareExpr*) override;
   Result OnConstExpr(ConstExpr*) override;
   Result OnConvertExpr(ConvertExpr*) override;
@@ -104,6 +105,9 @@ class Validator : public ExprVisitor::Delegate {
   Result OnTernaryExpr(TernaryExpr*) override;
   Result OnSimdLaneOpExpr(SimdLaneOpExpr*) override;
   Result OnSimdShuffleOpExpr(SimdShuffleOpExpr*) override;
+  Result OnDuplicateExpr(DuplicateExpr*) override;
+  Result OnSwapExpr(SwapExpr*) override;
+  Result OnOffset32Expr(Offset32Expr*) override;
 
  private:
   struct ActionResult {
@@ -127,6 +131,7 @@ class Validator : public ExprVisitor::Delegate {
                   const char* desc,
                   Index* out_index);
   Result CheckFuncVar(const Var* var, const Func** out_func);
+  Result CheckFuncNativeVar(const Var* var, const FuncNative** out_func_native);
   Result CheckGlobalVar(const Var* var,
                         const Global** out_global,
                         Index* out_global_index);
@@ -275,6 +280,16 @@ Result Validator::CheckFuncVar(const Var* var, const Func** out_func) {
       CheckVar(current_module_->funcs.size(), var, "function", &index));
   if (out_func) {
     *out_func = current_module_->funcs[index];
+  }
+  return Result::Ok;
+}
+
+Result Validator::CheckFuncNativeVar(const Var* var, const FuncNative** out_func_native) {
+  Index index;
+  CHECK_RESULT(
+      CheckVar(current_module_->func_natives.size(), var, "native function", &index));
+  if (out_func_native) {
+    *out_func_native = current_module_->func_natives[index];
   }
   return Result::Ok;
 }
@@ -617,6 +632,16 @@ Result Validator::OnCallIndirectExpr(CallIndirectExpr* expr) {
   CheckFuncSignature(&expr->loc, expr->decl);
   typechecker_.OnCallIndirect(expr->decl.sig.param_types,
                               expr->decl.sig.result_types);
+  return Result::Ok;
+}
+
+Result Validator::OnCallNativeExpr(CallNativeExpr* expr) {
+  expr_loc_ = &expr->loc;
+  const FuncNative* callee;
+  if (Succeeded(CheckFuncNativeVar(&expr->var, &callee))) {
+    typechecker_.OnCallNative(callee->decl.sig.param_types,
+                              callee->decl.sig.result_types);
+  }
   return Result::Ok;
 }
 
@@ -982,6 +1007,24 @@ Result Validator::OnSimdShuffleOpExpr(SimdShuffleOpExpr* expr) {
   return Result::Ok;
 }
 
+Result Validator::OnDuplicateExpr(DuplicateExpr* expr) {
+  expr_loc_ = &expr->loc;
+  typechecker_.OnDuplicate();
+  return Result::Ok;
+}
+
+Result Validator::OnSwapExpr(SwapExpr* expr) {
+  expr_loc_ = &expr->loc;
+  typechecker_.OnSwap();
+  return Result::Ok;
+}
+
+Result Validator::OnOffset32Expr(Offset32Expr* expr) {
+  expr_loc_ = &expr->loc;
+  typechecker_.OnOffset32();
+  return Result::Ok;
+}
+
 void Validator::CheckFuncSignature(const Location* loc,
                                    const FuncDeclaration& decl) {
   if (decl.has_func_type) {
@@ -1300,6 +1343,14 @@ Result Validator::CheckModule(const Module* module) {
 
       case ModuleFieldType::FuncType:
         break;
+
+      case ModuleFieldType::FuncNative: {
+        auto func_native = cast<FuncNativeModuleField>(&field)->func_native;
+        if (func_native.decl.has_func_type) {
+          CheckFuncTypeVar(&func_native.decl.type_var, nullptr);
+        }
+        break;
+      }
 
       case ModuleFieldType::Start: {
         if (seen_start) {
